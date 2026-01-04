@@ -2,8 +2,8 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 
-from .models import PlayerSummary, PlayerDetail, RadarData, PaginatedPlayers
-from .data_service import get_data_service
+from models import PlayerSummary, PlayerDetail, RadarData, PaginatedPlayers
+from data_service import get_data_service
 
 app = FastAPI(
     title="Football Player Dashboard API",

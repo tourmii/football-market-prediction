@@ -47,9 +47,13 @@ RADAR_SKILLS = {
 
 class PlayerDataService:
     
-    def __init__(self, data_path: str = None):
+    def __init__(self, data_path: str | Path | None = None):
         if data_path is None:
-            data_path = Path(__file__).parent.parent / "data" / "cleaned_player_data.csv"
+            module_dir = Path(__file__).resolve().parent
+            candidate = module_dir / "data" / "cleaned_player_data.csv"
+            if not candidate.exists():
+                candidate = module_dir.parent / "data" / "cleaned_player_data.csv"
+            data_path = candidate
         self.data_path = Path(data_path)
         self._df = None
         self._load_data()
