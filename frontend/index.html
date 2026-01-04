@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Analytics | Football Market Prediction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header class="header">
+        <h1 class="logo">Player Analytics</h1>
+        <div class="header-controls">
+            <div class="filter-tabs" id="positionFilters">
+                <button class="tab active" data-position="ALL">All</button>
+                <button class="tab" data-position="GK">GK</button>
+                <button class="tab" data-position="DEF">DEF</button>
+                <button class="tab" data-position="MID">MID</button>
+                <button class="tab" data-position="ATT">ATT</button>
+            </div>
+            <select id="sortSelect" class="sort-select">
+                <option value="marketValue-desc">Value (High)</option>
+                <option value="rating-desc">Rating (High)</option>
+                <option value="goals-desc">Goals</option>
+                <option value="age-asc">Age (Young)</option>
+            </select>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search player...">
+            </div>
+            <div class="player-count"><span id="totalPlayers">0</span> players</div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="players">
+            <table class="player-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Player</th>
+                        <th>Pos</th>
+                        <th>Age</th>
+                        <th>Rating</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody id="playerTableBody"></tbody>
+            </table>
+            <div class="loading" id="loadingIndicator">
+                <div class="spinner"></div>
+            </div>
+            <div class="pagination">
+                <button id="prevPage" disabled>←</button>
+                <span id="pageInfo">1/1</span>
+                <button id="nextPage">→</button>
+            </div>
+        </section>
+
+        <section class="detail" id="playerDetail">
+            <!-- Top-level View Tabs -->
+            <div class="view-tabs">
+                <button class="view-tab active" data-view="player">Player</button>
+                <button class="view-tab" data-view="compare">Compare</button>
+            </div>
+
+            <!-- Player Detail View -->
+            <div class="view-panel" id="playerView">
+                <div class="detail-empty" id="detailPlaceholder">Select a player from the list</div>
+                <div class="detail-content" id="detailContent">
+                    <div class="detail-header">
+                        <div>
+                            <h2 id="playerName">-</h2>
+                            <p class="meta"><span id="playerTeam">-</span> · <span id="playerPosition">-</span></p>
+                        </div>
+                        <div class="value-box">
+                            <span class="value" id="marketValue">-</span>
+                            <span class="trend" id="valueTrend"></span>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-item"><span id="playerAge">-</span><label>Age</label></div>
+                        <div class="info-item"><span id="playerHeight">-</span><label>Height</label></div>
+                        <div class="info-item"><span id="playerFoot">-</span><label>Foot</label></div>
+                        <div class="info-item"><span id="playerRating">-</span><label>Rating</label></div>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-col">
+                            <div class="section">
+                                <h3>Skill Profile <span class="note">(Percentile vs All Players)</span></h3>
+                                <div class="radar-box">
+                                    <canvas id="radarChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="section">
+                                <h3>Season Overview</h3>
+                                <div class="season-grid">
+                                    <div><span id="statApps">-</span><label>Apps</label></div>
+                                    <div><span id="statGoals">-</span><label>Goals</label></div>
+                                    <div><span id="statAssists">-</span><label>Assists</label></div>
+                                    <div><span id="statMinutes">-</span><label>Mins</label></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="detail-col">
+                            <div class="section">
+                                <h3>Detailed Stats</h3>
+                                <div class="stats-tabs">
+                                    <button class="stats-tab active" data-cat="attacking">Attacking</button>
+                                    <button class="stats-tab" data-cat="passing">Passing</button>
+                                    <button class="stats-tab" data-cat="dribbling">Dribbling</button>
+                                    <button class="stats-tab" data-cat="defending">Defending</button>
+                                    <button class="stats-tab" data-cat="physical">Physical</button>
+                                </div>
+                                <div class="stats-content" id="statsContent"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="contract-info">
+                        <span>Contract until <strong id="contractUntil">-</strong></span>
+                        <span>Prev. value: <strong id="previousValue">-</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compare Players View -->
+            <div class="view-panel hidden" id="compareView">
+                <div class="compare-selectors">
+                    <div class="compare-select-box">
+                        <label>Player 1</label>
+                        <input type="text" id="compareSearch1" placeholder="Search player...">
+                        <div class="compare-dropdown hidden" id="compareDropdown1"></div>
+                        <div class="selected-player" id="selectedPlayer1">-</div>
+                    </div>
+                    <div class="compare-vs">VS</div>
+                    <div class="compare-select-box">
+                        <label>Player 2</label>
+                        <input type="text" id="compareSearch2" placeholder="Search player...">
+                        <div class="compare-dropdown hidden" id="compareDropdown2"></div>
+                        <div class="selected-player" id="selectedPlayer2">-</div>
+                    </div>
+                </div>
+
+                <div class="compare-content hidden" id="compareContent">
+                    <div class="compare-header">
+                        <div class="compare-player-info" id="compareInfo1"></div>
+                        <div class="compare-player-info" id="compareInfo2"></div>
+                    </div>
+
+                    <div class="compare-grid">
+                        <div class="section">
+                            <h3>Skill Profile Comparison</h3>
+                            <div class="radar-box compare-radar">
+                                <canvas id="compareRadarChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="section">
+                            <h3>Stats Comparison</h3>
+                            <div class="compare-stats-tabs">
+                                <button class="compare-stats-tab active" data-cat="attacking">Attacking</button>
+                                <button class="compare-stats-tab" data-cat="passing">Passing</button>
+                                <button class="compare-stats-tab" data-cat="dribbling">Dribbling</button>
+                                <button class="compare-stats-tab" data-cat="defending">Defending</button>
+                                <button class="compare-stats-tab" data-cat="physical">Physical</button>
+                            </div>
+                            <div class="compare-stats-content" id="compareStatsContent"></div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Season Overview</h3>
+                        <div class="compare-season-grid" id="compareSeasonGrid"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
