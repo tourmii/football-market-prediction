@@ -3,6 +3,8 @@ from lightgbm import LGBMRegressor
 from catboost import CatBoostRegressor
 import lightgbm as lgb
 import pandas as pd
+from sklearn.model_selection import RandomizedSearchCV
+import joblib
 
 data_path = 'data/split/'
 X_train =  pd.read_csv(data_path+'X_train.csv')  # Load or define your training features
@@ -10,53 +12,110 @@ y_train =  pd.read_csv(data_path+'y_train.csv')  # Load or define your training 
 X_valid =  pd.read_csv(data_path+'X_valid.csv')  # Load or define your validation features
 y_valid =  pd.read_csv(data_path+'y_valid.csv')  # Load or define your validation target
 
+print("Training XGBoost with Hyperparameter Tuning...")
 
-#------------------------------------------------------------------------------
-#Setting up models with best hyperparameters found during tuning
-#------------------------------------------------------------------------------
-best_xgb_param = {'subsample': 1.0, 
-                  'reg_lambda': 1.0, 
-                  'reg_alpha': 0.1, 
-                  'n_estimators': 10000, 
-                  'min_child_weight': 3, 
-                  'max_depth': 3, 
-                  'learning_rate': 0.01, 
-                  'colsample_bytree': 0.8}
-xgb_base = XGBRegressor(**best_xgb_param, random_state=42, n_jobs=-1, verbosity=0, early_stopping_rounds=50)
-xgb_base.fit(X_train, y_train, eval_set=[(X_train, y_train), (X_valid, y_valid)], verbose=False)
+xgb_param_grid = {
+    'n_estimators': [100, 200, 300, 500],
+    'max_depth': [3, 5, 7, 10],
+    'learning_rate': [0.01, 0.05, 0.1, 0.2],
+    'subsample': [0.6, 0.8, 1.0],
+    'colsample_bytree': [0.6, 0.8, 1.0],
+    'min_child_weight': [1, 3, 5],
+    'reg_alpha': [0, 0.1, 0.5],
+    'reg_lambda': [0, 0.1, 1.0]
+}
 
-callbacks = [
-    lgb.early_stopping(stopping_rounds=50, verbose=False),
-    lgb.log_evaluation(period=0)
-]
-best_lgbm_param = {'subsample': 1.0, 
-     'reg_lambda': 0, 
-     'reg_alpha': 0.1, 
-     'num_leaves': 31, 
-     'n_estimators': 500, 
-     'min_child_samples': 20, 
-     'max_depth': 3, 
-     'learning_rate': 0.01, 
-     'colsample_bytree': 0.8}
-lgbm_base = LGBMRegressor(**best_lgbm_param, random_state=42, n_jobs=-1, verbosity=-1)
-lgbm_base.fit(X_train, y_train, eval_set=[(X_train, y_train), (X_valid, y_valid)],
-    eval_metric="rmse",
-    callbacks=callbacks)
+xgb_base = XGBRegressor(random_state=42, n_jobs=-1, verbosity=0)
 
-best_catboost_param = {'random_strength': 0, 
- 'learning_rate': 0.05, 
- 'l2_leaf_reg': 7, 
- 'iterations': 200, 
- 'depth': 4, 
- 'border_count': 128, 
- 'bagging_temperature': 1}
+xgb_random_search = RandomizedSearchCV(
+    xgb_base,
+    param_distributions=xgb_param_grid,
+    n_iter=50,
+    cv=5,
+    scoring='neg_root_mean_squared_error',
+    random_state=42,
+    n_jobs=-1,
+    verbose=1
+)
 
-catboost_base = CatBoostRegressor(task_type="GPU",devices='0',**best_catboost_param, random_state=42,verbose=0,thread_count=-1,od_type='Iter',od_wait=50)
-catboost_base.fit(X_train, y_train, eval_set=(X_valid, y_valid), use_best_model=True)
+xgb_random_search.fit(X_train, y_train)
+
+print(f"\nBest XGBoost Parameters: {xgb_random_search.best_params_}")
+print(f"Best CV Score (RMSE): {-xgb_random_search.best_score_:.4f}")
+
+print("Training LightGBM with Hyperparameter Tuning...")
+
+lgbm_param_grid = {
+    'n_estimators': [100, 200, 300, 500],
+    'max_depth': [3, 5, 7, 10],
+    'learning_rate': [0.01, 0.05, 0.1, 0.2],
+    'num_leaves': [15, 31, 63, 127],
+    'subsample': [0.6, 0.8, 1.0],
+    'colsample_bytree': [0.6, 0.8, 1.0],
+    'min_child_samples': [5, 10, 20],
+    'reg_alpha': [0, 0.1, 0.5],
+    'reg_lambda': [0, 0.1, 1.0]
+}
+
+lgbm_base = LGBMRegressor(random_state=42, n_jobs=-1, verbosity=-1)
+
+lgbm_random_search = RandomizedSearchCV(
+    lgbm_base,
+    param_distributions=lgbm_param_grid,
+    n_iter=50, 
+    cv=5,
+    scoring='neg_root_mean_squared_error',
+    random_state=42,
+    n_jobs=-1,
+    verbose=1
+)
+
+lgbm_random_search.fit(X_train, y_train)
+
+print(f"\nBest LightGBM Parameters: {lgbm_random_search.best_params_}")
+print(f"Best CV Score (RMSE): {-lgbm_random_search.best_score_:.4f}")
+
+
+print("Training CatBoost with Hyperparameter Tuning...")
+
+catboost_param_grid = {
+    'iterations': [100, 200, 300, 500],
+    'depth': [4, 6, 8, 10],
+    'learning_rate': [0.01, 0.05, 0.1, 0.2],
+    'l2_leaf_reg': [1, 3, 5, 7],
+    'bagging_temperature': [0, 0.5, 1],
+    'random_strength': [0, 0.5, 1],
+    'border_count': [32, 64, 128]
+}
+
+catboost_base = CatBoostRegressor(
+    random_state=42,
+    verbose=0,
+    thread_count=-1,
+)
+
+catboost_random_search = RandomizedSearchCV(
+    catboost_base,
+    param_distributions=catboost_param_grid,
+    n_iter=50,
+    cv=5,
+    scoring='neg_root_mean_squared_error',
+    random_state=42,
+    n_jobs=-1,
+    verbose=1
+)
+
+catboost_random_search.fit(X_train, y_train)
+
+print(f"\nBest CatBoost Parameters: {catboost_random_search.best_params_}")
+print(f"Best CV Score (RMSE): {-catboost_random_search.best_score_:.4f}")
+
+xgb_best = xgb_random_search.best_estimator_
+lgbm_best = lgbm_random_search.best_estimator_
+catboost_best = catboost_random_search.best_estimator_
 
 #Save trained models
-import joblib
-model_path = 'models/'
-joblib.dump(xgb_base, model_path+'xgb_base_model.pkl')
-joblib.dump(lgbm_base, model_path+'lgbm_base_model.pkl')
-joblib.dump(catboost_base, model_path+'catboost_base_model.pkl')
+model_path = 'models/checkpoints/'
+joblib.dump(xgb_best, model_path+'xgb_model.pkl')
+joblib.dump(lgbm_best, model_path+'lgbm_model.pkl')
+joblib.dump(catboost_best, model_path+'catboost_model.pkl')
