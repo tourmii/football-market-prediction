@@ -14,7 +14,7 @@ def eval_new(delta_pred_org, df, model_name):
     df['Predicted'] = df['MarketValuePrevious'] + df['PredictedDelta']
     scaler.fit(df['MarketValueCurrent'].values.reshape(-1, 1))
     
-    y_std = scaler.transform(df['MarketValuePrevious'].values.reshape(-1, 1))
+    y_std = scaler.transform(df['MarketValueCurrent'].values.reshape(-1, 1))
     y_pred_std = scaler.transform(df['Predicted'].values.reshape(-1, 1))
 
     
