@@ -11,7 +11,6 @@ def eval(delta_pred_org, df, model_name):
     
     df['Predicted'] = np.expm1(current_pred_log)
     
-    #Metrics on Log Scale
     actual_log = np.log1p(df['MarketValueCurrent'])
     rmse_log = np.sqrt(mean_squared_error(actual_log, current_pred_log))
     mae_log = mean_absolute_error(actual_log, current_pred_log)
@@ -22,7 +21,6 @@ def eval(delta_pred_org, df, model_name):
 
     y_org.replace(0, 1, inplace=True)
     
-    # Metrics on original scale
     rmse = np.sqrt(mean_squared_error(y_org, y_pred_org))
     mae = mean_absolute_error(y_org, y_pred_org)
     r2 = r2_score(y_org, y_pred_org)
@@ -54,14 +52,14 @@ xgb_model = joblib.load(model_path+'xgb_model.pkl')
 lgbm_model = joblib.load(model_path+'lgbm_model.pkl')
 catboost_model = joblib.load(model_path+'catboost_model.pkl')
 data_path = 'data/split/'
-X_test =  pd.read_csv(data_path+'X_test.csv')  # Load or define your test features
-y_test =  pd.read_csv(data_path+'y_test.csv')  # Load or define your test target
-values_df_test =  pd.read_csv(data_path+'values_df_test.csv')  # Load or define your test target
-# Make predictions
+X_test =  pd.read_csv(data_path+'X_test.csv')  
+y_test =  pd.read_csv(data_path+'y_test.csv') 
+values_df_test =  pd.read_csv(data_path+'values_df_test.csv')  
+
 delta_pred_xgb = xgb_model.predict(X_test)
 delta_pred_lgbm = lgbm_model.predict(X_test)
 delta_pred_catboost = catboost_model.predict(X_test)
-# Evaluate models
+
 results_xgb = eval(delta_pred_xgb, values_df_test.copy(), 'XGBoost Regressor')
 results_lgbm = eval(delta_pred_lgbm, values_df_test.copy(), 'LightGBM Regressor')
 results_catboost = eval(delta_pred_catboost, values_df_test.copy(), 'CatBoost Regressor')

@@ -7,10 +7,10 @@ from sklearn.model_selection import RandomizedSearchCV
 import joblib
 
 data_path = 'data/split/'
-X_train =  pd.read_csv(data_path+'X_train.csv')  # Load or define your training features
-y_train =  pd.read_csv(data_path+'y_train.csv')  # Load or define your training target
-X_valid =  pd.read_csv(data_path+'X_valid.csv')  # Load or define your validation features
-y_valid =  pd.read_csv(data_path+'y_valid.csv')  # Load or define your validation target
+X_train =  pd.read_csv(data_path+'X_train.csv')
+y_train =  pd.read_csv(data_path+'y_train.csv')  
+X_valid =  pd.read_csv(data_path+'X_valid.csv')  
+y_valid =  pd.read_csv(data_path+'y_valid.csv')  
 
 print("Training XGBoost with Hyperparameter Tuning...")
 
