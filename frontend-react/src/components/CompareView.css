@@ -1,0 +1,300 @@
+.compare-view {
+    padding: 0;
+}
+
+.compare-selectors {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.compare-select-box {
+    flex: 1;
+    position: relative;
+}
+
+.compare-select-box label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.compare-select-box input {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 13px;
+}
+
+.compare-select-box input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.compare-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 240px;
+    overflow-y: auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-top: 4px;
+    z-index: 100;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.compare-dropdown-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+}
+
+.compare-dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.compare-dropdown-item:hover {
+    background: var(--bg-hover);
+}
+
+.compare-dropdown-item .player-name {
+    font-weight: 500;
+}
+
+.compare-dropdown-item .player-team {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.selected-player {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: var(--bg);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text-dim);
+    text-align: center;
+}
+
+.compare-vs {
+    padding: 36px 12px 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.compare-content {
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.compare-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.compare-player-info {
+    background: var(--bg);
+    padding: 16px;
+    border-radius: 10px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.compare-player-info .name {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.compare-player-info .team {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+
+.compare-player-info .value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--green);
+}
+
+.compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.compare-radar {
+    height: 260px;
+}
+
+.compare-stats-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.compare-stats-tab {
+    padding: 6px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-dim);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.compare-stats-tab:hover {
+    border-color: var(--text-muted);
+}
+
+.compare-stats-tab.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+.compare-stats-content {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.compare-stats-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+}
+
+.compare-stats-row:last-child {
+    border-bottom: none;
+}
+
+.stat-middle {
+    text-align: center;
+}
+
+.stat-label {
+    color: var(--text-dim);
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+
+.stat-value {
+    font-weight: 600;
+    padding: 0 8px;
+}
+
+.stat-value.left {
+    text-align: right;
+}
+
+.stat-value.right {
+    text-align: left;
+}
+
+.stat-value.better {
+    color: var(--green);
+}
+
+.stat-bar-container {
+    display: flex;
+    align-items: center;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.stat-bar {
+    height: 100%;
+    border-radius: 3px;
+}
+
+.stat-bar.left {
+    background: var(--accent);
+    margin-left: auto;
+}
+
+.stat-bar.right {
+    background: #a371f7;
+}
+
+.compare-season-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.compare-season-item {
+    background: var(--bg);
+    padding: 14px;
+    border-radius: 8px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 10px;
+}
+
+.compare-season-item .label {
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.compare-season-item .val {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.compare-season-item .val.left {
+    text-align: right;
+}
+
+.compare-season-item .val.right {
+    text-align: left;
+}
+
+.compare-season-item .val.better {
+    color: var(--green);
+}
+
+@media (max-width: 1200px) {
+    .compare-grid {
+        grid-template-columns: 1fr;
+    }
+}

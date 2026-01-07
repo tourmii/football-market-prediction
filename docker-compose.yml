@@ -16,7 +16,7 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: Dockerfile.frontend
+      dockerfile: Dockerfile.frontend.react
     ports:
       - "3000:80"
     depends_on:
